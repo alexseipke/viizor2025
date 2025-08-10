@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viizor - Cloud</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Potree Dependencies -->
+    <link rel="stylesheet" type="text/css" href="/potree/build/potree/potree.css">
+    <link rel="stylesheet" type="text/css" href="/potree/libs/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="/potree/libs/openlayers3/ol.css">
+    <link rel="stylesheet" type="text/css" href="/potree/libs/spectrum/spectrum.css">
+    <link rel="stylesheet" type="text/css" href="/potree/libs/jstree/themes/mixed/style.css">
+
+    <!-- Viizor Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+
+    <!-- External Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* Variables CSS unificadas del dashboard */
+        :root {
+            /* Dark theme consistent with dashboard */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #363636;
+            --bg-elevated: #2f2f2f;
+
+            /* Blue accents */
+            --primary: #4a9eff;
+            --primary-hover: #5ba7ff;
+            --primary-dark: #3a8eef;
+
+            /* Text hierarchy */
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #888888;
+            --text-disabled: #666666;
+
+            /* Semantic colors */
+            --success: #00d084;
+            --warning: #ffa726;
+            --danger: #f44336;
+
+            /* Borders and surfaces */
+            --border-primary: #404040;
+            --border-secondary: #505050;
+            --surface-hover: #323232;
+
+            /* Spacing system */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+
+            /* Typography */
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.4;
+            min-height: 100vh;
+            font-size: 15px;
+        }
+
+        /* Header unificado con dashboard */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .logo-text {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            display: inline-block;
+        }
+
+        .logo-text span {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #64748B;
+            margin-left: 16px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            padding-right: 180px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            position: relative;
+        }
+
+        .user-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .user-icon-btn.logged-in {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px rgba(74, 158, 255, 0.3);
+        }
+
+        .user-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .user-icon-btn.logged-in:hover {
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.4);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: var(--space-sm);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            min-width: 180px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .user-info-dropdown {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--border-primary);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: var(--space-md) var(--space-lg);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn {
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Modal unificado con dashboard */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            margin: 8% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: var(--space-md) var(--space-lg);
+            border: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--surface-hover);
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: var(--space-md);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+        }
+
+        .close {
+            position: absolute;
+            right: var(--space-md);
+            top: var(--space-md);
+            color: var(--text-secondary);
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        /* Messages */
+        .success-message, .error-message, .info-message {
+            padding: var(--space-md);
+            border-radius: 6px;
+            margin-bottom: var(--space-md);
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: rgba(0, 208, 132, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(0, 208, 132, 0.3);
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .info-message {
+            background: rgba(74, 158, 255, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: var(--space-sm);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .switch-tab-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .switch-tab-link:hover {
+            color: var(--primary-hover);
+        }
+
+        /* Colores distintivos para paneles de nubes */
+        #viizorCloudsCard {
+            background: rgba(0, 208, 132, 0.05);
+            border: 1px solid rgba(0, 208, 132, 0.2);
+        }
+
+        #viizorCloudsCard .card-header {
+            background: rgba(0, 208, 132, 0.08);
+            border-bottom: 1px solid rgba(0, 208, 132, 0.15);
+        }
+
+        #myProjectsCard {
+            background: rgba(74, 158, 255, 0.05);
+            border: 1px solid rgba(74, 158, 255, 0.2);
+        }
+
+        #myProjectsCard .card-header {
+            background: rgba(74, 158, 255, 0.08);
+            border-bottom: 1px solid rgba(74, 158, 255, 0.15);
+        }
+
+        /* Tool-items dentro de paneles de nubes con mejor contraste */
+        #viizorCloudsCard .tool-item:hover {
+            background: rgba(0, 208, 132, 0.1);
+        }
+
+        #myProjectsCard .tool-item:hover {
+            background: rgba(74, 158, 255, 0.1);
+        }
+
+        /* Estilos para tool-items de nubes */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-primary);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--space-sm);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl) var(--space-lg);
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .btn-view {
+            background: rgba(0, 208, 132, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-view:hover {
+            background: rgba(0, 208, 132, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Viizor Cloud</h1>
+                <span>Powered by simplicity</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="gtranslate_wrapper"></div>
+
+            <!-- User Menu -->
+            <div class="user-section">
+                <button class="user-icon-btn" id="mainUserButton" onclick="toggleUserMenu()">
+                    <i data-lucide="user"></i>
+                </button>
+
+                <div id="userDropdown" class="dropdown-menu">
+                    <div id="userInfoDropdown" class="user-info-dropdown">
+                        Cargando...
+                    </div>
+                    <a href="/dashboard" class="dropdown-item">
+                        <i data-lucide="layout-dashboard" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                        Dashboard
+                    </a>
+                    <button class="dropdown-item" onclick="logout()">
+                        <i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="viizorApp.uploadCloud()">
+                ☁️ Subir Nube de Puntos .laz
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Left Panel - Tools -->
+        <div class="left-panel">
+            <div class="panel-section">
+                <!-- Analyze and Vectorize Card -->
+                <div class="tool-card">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="activity"></i></div>
+                            <div>
+                                <h4 class="card-title" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+                                    Analizar y Vectorizar
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="tool-item" data-tool="distance" onclick="viizorApp.activateTool('distance')">
+                            <i data-lucide="ruler" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Distancia</span>
+                            <span class="tool-shortcut">Ctrl+D</span>
+                        </div>
+                        <div class="tool-item" data-tool="area" onclick="viizorApp.activateTool('area')">
+                            <i data-lucide="square" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Área y Perímetro</span>
+                            <span class="tool-shortcut">Ctrl+U</span>
+                        </div>
+                        <div class="tool-item" data-tool="height" onclick="viizorApp.activateTool('height')">
+                            <i data-lucide="trending-up" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Altura</span>
+                            <span class="tool-shortcut">Ctrl+H</span>
+                        </div>
+                        <div class="tool-item" data-tool="angle" onclick="viizorApp.activateTool('angle')">
+                            <i data-lucide="triangle" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Ángulo</span>
+                            <span class="tool-shortcut">Ctrl+A</span>
+                        </div>
+                        <div class="tool-item" data-tool="profile" onclick="viizorApp.activateTool('profile')">
+                            <i data-lucide="activity" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Perfil</span>
+                            <span class="tool-shortcut">Ctrl+P</span>
+                        </div>
+                        <div class="tool-item" data-tool="point" onclick="viizorApp.activateTool('point')">
+                            <i data-lucide="map-pin" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Punto</span>
+                            <span class="tool-shortcut">Ctrl+.</span>
+                        </div>
+                        <div class="tool-item" data-tool="annotation" onclick="viizorApp.activateTool('annotation')">
+                            <i data-lucide="message-square" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Anotación</span>
+                            <span class="tool-shortcut">Ctrl+T</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaborate Card -->
+                <div class="tool-card">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="users"></i></div>
+                            <div>
+                                <h4 class="card-title" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+                                    Colaborar
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="tool-item" onclick="viizorApp.shareView()">
+                            <i data-lucide="share-2" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Compartir Vista</span>
+                            <span class="tool-shortcut">Ctrl+S</span>
+                        </div>
+                        <div class="tool-item" onclick="viizorApp.addComment()">
+                            <i data-lucide="message-circle" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Añadir Comentarios</span>
+                            <span class="tool-shortcut">Ctrl+/</span>
+                        </div>
+                        <div class="tool-item" onclick="viizorApp.startMeeting()">
+                            <i data-lucide="video" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Reunión en Vivo</span>
+                            <span class="tool-shortcut">Ctrl+M</span>
+                        </div>
+                        <div class="tool-item" onclick="viizorApp.exportTeam()">
+                            <i data-lucide="send" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Enviar al Equipo</span>
+                            <span class="tool-shortcut">Ctrl+E</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Card -->
+                <div class="tool-card">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="download"></i></div>
+                            <div>
+                                <h4 class="card-title" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+                                    Exportar
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="tool-item" onclick="viizorApp.exportAll()" style="background: rgba(96, 165, 250, 0.05);">
+                            <i data-lucide="package" style="width: 18px; height: 18px; margin-right: 8px; color: #60A5FA;"></i>
+                            <span class="tool-name" style="color: #60A5FA;">Exportar Todo</span>
+                            <span class="tool-shortcut">Ctrl+E</span>
+                        </div>
+
+                        <!-- Export Categories -->
+                        <div class="tool-item" onclick="viizorApp.toggleExportCategory('measurements')">
+                            <i data-lucide="ruler" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Mediciones</span>
+                            <span class="category-count" id="measurementsCount">0</span>
+                            <div class="category-arrow" id="measurementsArrow">▶</div>
+                        </div>
+                        <div class="export-category-content" id="measurementsContent">
+                            <div id="measurementsList">Sin mediciones</div>
+                        </div>
+
+                        <div class="tool-item" onclick="viizorApp.toggleExportCategory('profiles')">
+                            <i data-lucide="activity" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Perfiles</span>
+                            <span class="category-count" id="profilesCount">0</span>
+                            <div class="category-arrow" id="profilesArrow">▶</div>
+                        </div>
+                        <div class="export-category-content" id="profilesContent">
+                            <div id="profilesList">Sin perfiles</div>
+                        </div>
+
+                        <div class="tool-item" onclick="viizorApp.toggleExportCategory('annotations')">
+                            <i data-lucide="map-pin" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Anotaciones</span>
+                            <span class="category-count" id="annotationsCount">0</span>
+                            <div class="category-arrow" id="annotationsArrow">▶</div>
+                        </div>
+                        <div class="export-category-content" id="annotationsContent">
+                            <div id="annotationsList">Sin anotaciones</div>
+                        </div>
+
+                        <div class="tool-item" onclick="viizorApp.toggleExportCategory('volumes')">
+                            <i data-lucide="message-square" style="width: 18px; height: 18px; margin-right: 8px; color: white;"></i>
+                            <span class="tool-name">Volúmenes</span>
+                            <span class="category-count" id="volumesCount">0</span>
+                            <div class="category-arrow" id="volumesArrow">▶</div>
+                        </div>
+                        <div class="export-category-content" id="volumesContent">
+                            <div id="volumesList">Sin volúmenes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nueva Sección: Nubes Viizor Cloud - Tool Card ABIERTA por defecto -->
+                <div class="tool-card" id="viizorCloudsCard">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="cloud"></i></div>
+                            <div>
+                                <h4 class="card-title" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+                                    Nubes Viizor Cloud
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▲</div>
+                    </div>
+                    <div class="card-content" id="viizorCloudsContent">
+                        <div id="viizorCloudsContainer">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                Cargando nubes disponibles...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nueva Sección: Mis Proyectos - Solo para usuarios logueados -->
+                <div class="tool-card" id="myProjectsCard" style="display: none;">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="folder"></i></div>
+                            <div>
+                                <h4 class="card-title" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+                                    Mis Proyectos
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div id="myProjectsContainer">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                Cargando tus proyectos...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel - 3D Viewer -->
+        <div class="viewer-area">
+            <div class="viewer-overlay">
+                <span class="status-dot"></span>
+                <span id="viewerStatus">Iniciando Viizor...</span>
+            </div>
+
+            <div class="upload-zone" id="uploadArea">
+                <h2>Viizor - Cloud</h2>
+                <p>Cargando...</p>
+            </div>
+
+            <div id="potree_render_area" class="hidden"></div>
+            <div id="potree_sidebar_container"></div>
+        </div>
+
+        <!-- Right Panel - Dynamic Content -->
+        <div class="right-panel">
+            <div class="panel-section">
+                <div class="tool-card">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="trending-up"></i></div>
+                            <div><h4 class="card-title">Perfil</h4></div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div style="margin-bottom: 14px;">
+                            <label class="slider-label">Ancho del Perfil</label>
+                            <input type="range" class="professional-slider" min="0.1" max="1.0" step="0.01" value="0.5" id="profileWidthSliderRight" oninput="viizorApp.updateProfileWidth(this.value)">
+                            <div class="slider-value" id="profileWidthValueRight">0.50 m</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <div class="card-header" onclick="viizorApp.toggleCard(this)">
+                        <div class="header-content">
+                            <div class="header-icon"><i data-lucide="target"></i></div>
+                            <div><h4 class="card-title">Control de Visualización</h4></div>
+                        </div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #ffffff;"></span>
+                            show/hide all
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #808080;"></span>
+                            never classified
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #a0a0a0;"></span>
+                            unclassified
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #8B5A2B;"></span>
+                            ground
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #90EE90;"></span>
+                            low vegetation
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #228B22;"></span>
+                            medium vegetation
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #006400;"></span>
+                            high vegetation
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #DC143C;"></span>
+                            building
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox">
+                            <span style="background: #FF69B4;"></span>
+                            low point(noise)
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #FFD700;"></span>
+                            key-point
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #4169E1;"></span>
+                            water
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox">
+                            <span style="background: #FF8C00;"></span>
+                            overlap
+                        </div>
+                        <div class="class-item">
+                            <input type="checkbox" checked>
+                            <span style="background: #C0C0C0;"></span>
+                            default
+                        </div>
+                        <div class="class-item" style="margin-top: 12px;">
+                            <button style="background: #374151; color: #e5e7eb; border: 1px solid #4b5563; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                                invert
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileUpload" accept=".las,.laz" style="display: none;">
+
+    <!-- Modal Unificado de Autenticación -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="viizorApp.closeAuthModal()">&times;</span>
+
+            <div class="modal-header">
+                <div class="tab-navigation">
+                    <button class="tab-btn active" id="loginTabBtn" onclick="viizorApp.switchTab('login')">
+                        Iniciar Sesión
+                    </button>
+                    <button class="tab-btn" id="signupTabBtn" onclick="viizorApp.switchTab('signup')">
+                        Registrarse
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab de Login -->
+                <div id="loginTab" class="tab-content active">
+                    <div id="loginMessage"></div>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" name="email" required placeholder="tu@email.com">
+                        </div>
+                        <button type="submit" class="btn-primary" id="loginSubmitBtn">
+                            Enviar Enlace de Acceso
+                        </button>
+                    </form>
+                    <div style="text-align: center; font-size: 14px; color: var(--text-secondary);">
+                        ¿No tienes cuenta? <span class="switch-tab-link" onclick="viizorApp.switchTab('signup')">Regístrate aquí</span>
+                    </div>
+                </div>
+
+                <!-- Tab de Signup -->
+                <div id="signupTab" class="tab-content">
+                    <div id="signupMessage"></div>
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <label for="signupName">Nombre completo</label>
+                            <input type="text" id="signupName" name="name" required placeholder="Tu nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" name="email" required placeholder="tu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupCountry">País</label>
+                            <select id="signupCountry" name="country" required>
+                                <option value="">Selecciona tu país</option>
+                                <option value="AR">Argentina</option>
+                                <option value="BR">Brasil</option>
+                                <option value="CL">Chile</option>
+                                <option value="CO">Colombia</option>
+                                <option value="ES">España</option>
+                                <option value="MX">México</option>
+                                <option value="PE">Perú</option>
+                                <option value="US">Estados Unidos</option>
+                                <option value="UY">Uruguay</option>
+                                <option value="VE">Venezuela</option>
+                                <option value="other">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupIndustry">Industria</label>
+                            <select id="signupIndustry" name="industry" required>
+                                <option value="">¿En qué trabajas?</option>
+                                <option value="construction">Construcción</option>
+                                <option value="architecture">Arquitectura</option>
+                                <option value="engineering">Ingeniería</option>
+                                <option value="surveying">Topografía</option>
+                                <option value="mining">Minería</option>
+                                <option value="forestry">Silvicultura</option>
+                                <option value="archaeology">Arqueología</option>
+                                <option value="academic">Académico/Investigación</option>
+                                <option value="other">Otro</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary" id="signupSubmitBtn">
+                            Crear Cuenta y Enviar Enlace
+                        </button>
+                    </form>
+                    <div style="text-align: center; font-size: 14px; color: var(--text-secondary);">
+                        ¿Ya tienes cuenta? <span class="switch-tab-link" onclick="viizorApp.switchTab('login')">Inicia sesión aquí</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 2D Panel -->
+    <div id="profilePanel" class="profile-panel">
+        <div class="profile-header" id="profileHeader">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="trending-up"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Perfil 2D</div>
+                    <div style="font-size: 11px; opacity: 0.8;" id="profileName">Profile_1</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button onclick="viizorApp.exportProfile()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                    📊 Export
+                </button>
+                <button onclick="viizorApp.closeProfilePanel()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                    ✕
+                </button>
+            </div>
+        </div>
+        <div class="profile-content">
+            <div class="profile-controls">
+                <div class="width-control">
+                    <label>Ancho del Perfil</label>
+                    <input type="range" id="profileWidthSlider" class="width-slider" min="0.1" max="1.0" step="0.01" value="0.5">
+                    <div class="width-value" id="profileWidthValue">0.50 m</div>
+                </div>
+            </div>
+            <div class="profile-viewer" id="profileViewer"></div>
+        </div>
+    </div>
+
+    <!-- Potree Scripts -->
+    <script src="/potree/libs/jquery/jquery-3.1.1.min.js"></script>
+    <script src="/potree/libs/spectrum/spectrum.js"></script>
+    <script src="/potree/libs/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/potree/libs/other/BinaryHeap.js"></script>
+    <script src="/potree/libs/tween/tween.min.js"></script>
+    <script src="/potree/libs/d3/d3.js"></script>
+    <script src="/potree/libs/proj4/proj4.js"></script>
+    <script src="/potree/libs/openlayers3/ol.js"></script>
+    <script src="/potree/libs/i18next/i18next.js"></script>
+    <script src="/potree/libs/jstree/jstree.js"></script>
+    <script src="/potree/build/potree/potree.js"></script>
+    <script src="/potree/src/viewer/profile.js"></script>
+    <script src="/potree/libs/plasio/js/laslaz.js"></script>
+
+    <!-- Main Application Script -->
+    <script src="js/main.js"></script>
+    <script src="js/annotation-insitu.js"></script>
+
+    <!-- JavaScript LIMPIO y SIMPLE -->
+    <script>
+        // Sistema de gestión de usuario - VERSIÓN LIMPIA
+        class ViizorUserManager {
+            constructor() {
+                this.token = localStorage.getItem('viizor_auth_token');
+                this.user = null;
+                this.init();
+            }
+
+            async init() {
+                await this.loadUserInfo();
+                await this.loadViizorClouds();
+                await this.loadMyProjects();
+                this.setupUserMenu();
+            }
+
+            async loadUserInfo() {
+                if (!this.token) {
+                    this.updateUserMenu('Visitante');
+                    this.hideMyProjects();
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/auth/profile', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.user = data.success ? data.user : data;
+                        const firstName = (this.user.name || this.user.email?.split('@')[0] || 'Usuario').split(' ')[0];
+                        this.updateUserMenu(firstName);
+                        this.showMyProjects();
+                    } else {
+                        this.token = null;
+                        localStorage.removeItem('viizor_auth_token');
+                        this.updateUserMenu('Visitante');
+                        this.hideMyProjects();
+                    }
+                } catch (error) {
+                    console.log('Error cargando usuario:', error);
+                    this.updateUserMenu('Visitante');
+                    this.hideMyProjects();
+                }
+            }
+
+            updateUserMenu(displayName) {
+                const userInfo = document.getElementById('userInfoDropdown');
+                const userButton = document.getElementById('mainUserButton');
+                
+                if (userInfo) {
+                    userInfo.textContent = displayName;
+                }
+                
+                if (userButton) {
+                    if (displayName === 'Visitante') {
+                        userButton.classList.remove('logged-in');
+                    } else {
+                        userButton.classList.add('logged-in');
+                    }
+                }
+            }
+
+            showMyProjects() {
+                const card = document.getElementById('myProjectsCard');
+                if (card) card.style.display = 'block';
+            }
+
+            hideMyProjects() {
+                const card = document.getElementById('myProjectsCard');
+                if (card) card.style.display = 'none';
+            }
+
+            setupUserMenu() {
+                document.addEventListener('click', (e) => {
+                    const dropdown = document.getElementById('userDropdown');
+                    const button = document.getElementById('mainUserButton');
+                    if (!button?.contains(e.target)) {
+                        dropdown?.classList.remove('show');
+                    }
+                });
+            }
+
+            async loadViizorClouds() {
+                const container = document.getElementById('viizorCloudsContainer');
+                if (!container) return;
+
+                // SIEMPRE mostrar tus nubes como demos (UUIDs reales)
+                const demoClouds = [
+                    {
+                        id: '3e8f9d52-6a85-4fce-9b24-e8ff35e0fb80',
+                        uuid: '3e8f9d52-6a85-4fce-9b24-e8ff35e0fb80',
+                        originalName: 'Segundo.laz',
+                        title: 'Segundo.laz',
+                        fileSize: 27000000
+                    },
+                    {
+                        id: 'acde2cd8-ee5c-4cdf-8a9d-a6aca73bd57c',
+                        uuid: 'acde2cd8-ee5c-4cdf-8a9d-a6aca73bd57c',
+                        originalName: 'Ruina.laz',
+                        title: 'Ruina.laz',
+                        fileSize: 78000000
+                    },
+                    {
+                        id: '212027b9-f1e1-4194-9903-d65d6c2a231b',
+                        uuid: '212027b9-f1e1-4194-9903-d65d6c2a231b',
+                        originalName: 'Igreja Santa Clara.laz',
+                        title: 'Igreja Santa Clara.laz',
+                        fileSize: 375000000
+                    },
+                    {
+                        id: '7dedc202-f077-4ee8-b301-e1af339bd3fd',
+                        uuid: '7dedc202-f077-4ee8-b301-e1af339bd3fd',
+                        originalName: 'Parque Vila.laz',
+                        title: 'Parque Vila.laz',
+                        fileSize: 119000000
+                    },
+                    {
+                        id: '78520853-2370-43fe-a2bd-79c61ce06dc6',
+                        uuid: '78520853-2370-43fe-a2bd-79c61ce06dc6',
+                        originalName: 'MiniFuerte.laz',
+                        title: 'MiniFuerte.laz',
+                        fileSize: 5600000
+                    }
+                ];
+
+                this.renderCloudsAsToolItems(demoClouds, container);
+            }
+
+            async loadMyProjects() {
+                const container = document.getElementById('myProjectsContainer');
+                if (!container || !this.token) return;
+
+                try {
+                    const response = await fetch('/api/clouds', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const userClouds = await response.json();
+                        if (userClouds && userClouds.length > 0) {
+                            this.renderCloudsAsToolItems(userClouds, container);
+                        } else {
+                            container.innerHTML = `
+                                <div class="empty-state">
+                                    <h3>Sin Proyectos</h3>
+                                    <p>Sube tu primer archivo para empezar</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <h3>Error Cargando Proyectos</h3>
+                                <p>No se pudieron cargar tus proyectos</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.log('Error cargando proyectos:', error);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Error de Conexión</h3>
+                            <p>No se pudo conectar al servidor</p>
+                        </div>
+                    `;
+                }
+            }
+
+            renderCloudsAsToolItems(clouds, container) {
+                const cloudsHTML = clouds.map(cloud => {
+                    const cloudName = cloud.originalName || cloud.title || 'Proyecto Sin Título';
+                    const cloudId = cloud.id || cloud.uuid;
+                    const fileSize = cloud.fileSize || cloud.file_size || 0;
+
+                    return `
+                        <div class="tool-item" onclick="loadViizorCloud('${cloudId}')" style="cursor: pointer; justify-content: space-between; padding: 12px 16px;">
+                            <div style="display: flex; align-items: center; flex: 1;">
+                                <i data-lucide="file-3d" style="width: 16px; height: 16px; margin-right: 12px; color: #60A5FA;"></i>
+                                <div style="flex: 1;">
+                                    <div style="color: var(--text-primary); font-weight: 500; font-size: 14px; margin-bottom: 2px;">
+                                        ${cloudName}
+                                    </div>
+                                    <div style="color: var(--text-tertiary); font-size: 11px; font-family: var(--font-mono);">
+                                        ${cloudId.substring(0, 8)}... • ${this.formatBytes(fileSize)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="btn-view" style="margin-left: 12px; padding: 4px 8px; font-size: 10px;">
+                                VER
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = cloudsHTML;
+
+                // Re-inicializar iconos de Lucide
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+        }
+
+        // Funciones globales SIMPLES
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('viizor_auth_token');
+            window.location.reload();
+        }
+
+        function loadViizorCloud(cloudId) {
+            console.log('Cargando nube con Earth Control:', cloudId);
+
+            // Usar la función REAL del visor que mantiene Earth Control
+            if (typeof viizorApp !== 'undefined' && viizorApp.loadConvertedCloud) {
+                viizorApp.loadConvertedCloud(cloudId, 'Demo');
+            } else {
+                console.log('viizorApp no disponible, usando fallback URL');
+                // Fallback: actualizar URL y recargar (método original)
+                const currentUrl = new URL(window.location);
+                currentUrl.searchParams.set('uuid', cloudId);
+                window.history.pushState({}, '', currentUrl);
+                window.location.reload();
+            }
+        }
+
+        // Inicialización SIMPLE
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar sistema
+            window.viizorUserManager = new ViizorUserManager();
+
+            // Inicializar iconos
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <!-- Google Translate Widget -->
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "es",
+            "native_language_names": true,
+            "detect_browser_language": true,
+            "languages": ["es", "fr", "en", "it", "de", "pt"],
+            "wrapper_selector": ".gtranslate_wrapper",
+            "switcher_horizontal_position": "right",
+            "switcher_vertical_position": "top",
+            "float_switcher_open_direction": "bottom",
+            "flag_style": "3d"
+        };
+    </script>
+    <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+</body>
+</html>

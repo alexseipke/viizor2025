@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viizor Cloud - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark theme consistent with /pro viewer */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #363636;
+            --bg-elevated: #2f2f2f;
+
+            /* Blue accents from /pro */
+            --primary: #4a9eff;
+            --primary-hover: #5ba7ff;
+            --primary-dark: #3a8eef;
+
+            /* Text hierarchy */
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #888888;
+            --text-disabled: #666666;
+
+            /* Semantic colors */
+            --success: #00d084;
+            --warning: #ffa726;
+            --danger: #f44336;
+
+            /* Borders and surfaces */
+            --border-primary: #404040;
+            --border-secondary: #505050;
+            --surface-hover: #323232;
+
+            /* Spacing system */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+
+            /* Typography */
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.4;
+            min-height: 100vh;
+            font-size: 15px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb {
+            color: var(--text-tertiary);
+            font-size: 15px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        .btn {
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: var(--space-md) var(--space-lg);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        /* Projects Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Projects Table */
+        .projects-container {
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+        }
+
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .projects-table th {
+            background: var(--bg-tertiary);
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .projects-table td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+            vertical-align: middle;
+        }
+
+        .projects-table tr:hover {
+            background: var(--surface-hover);
+        }
+
+        .project-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .project-name:hover {
+            color: var(--primary);
+        }
+
+        .project-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .project-date {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .file-size {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-ready {
+            background: rgba(0, 208, 132, 0.15);
+            color: var(--success);
+        }
+
+        .status-processing {
+            background: rgba(255, 167, 38, 0.15);
+            color: var(--warning);
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--danger);
+        }
+
+        .project-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: 1px solid;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: none;
+        }
+
+        .btn-view {
+            background: rgba(0, 208, 132, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .btn-view:hover {
+            background: rgba(0, 208, 132, 0.25);
+        }
+
+        .btn-share {
+            background: rgba(74, 158, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-share:hover {
+            background: rgba(74, 158, 255, 0.25);
+        }
+
+        .btn-delete {
+            background: rgba(244, 67, 54, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: rgba(244, 67, 54, 0.25);
+        }
+
+        /* Share Modal */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .share-modal h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+        }
+
+        .share-modal p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            line-height: 1.5;
+        }
+
+        .share-url-container {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+            word-break: break-all;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .share-modal-actions {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl) var(--space-lg);
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            margin-bottom: var(--space-lg);
+            line-height: 1.5;
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-primary);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--space-sm);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Upload Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            padding: var(--space-lg);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            max-width: 600px;
+            margin: 10% auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-primary);
+            border-radius: 6px;
+            padding: var(--space-xl);
+            text-align: center;
+            transition: all 0.15s ease;
+            margin-bottom: var(--space-lg);
+            cursor: pointer;
+            background: var(--bg-tertiary);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(74, 158, 255, 0.05);
+        }
+
+        .upload-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .upload-subtext {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-sm);
+            justify-content: flex-end;
+        }
+
+        .progress-container {
+            margin-top: var(--space-lg);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: var(--space-sm);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Auth Error */
+        .auth-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+            padding: var(--space-xl);
+        }
+
+        .auth-error h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .auth-error p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        .debug-info {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: var(--space-md);
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            margin-top: var(--space-lg);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-line;
+            border: 1px solid var(--border-primary);
+        }
+
+        /* === NOTIFICATIONS PANEL === */
+        .notifications-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-primary);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notifications-panel.open {
+            right: 0;
+        }
+
+        .notifications-header {
+            padding: var(--space-lg);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .unread-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .notifications-toggle {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: var(--space-xs);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .notifications-toggle:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .notifications-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-sm);
+        }
+
+        .message-conversation {
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            margin-bottom: var(--space-sm);
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+
+        .message-conversation.unread {
+            border-color: var(--primary);
+            background: rgba(74, 158, 255, 0.02);
+        }
+
+        .conversation-header {
+            padding: var(--space-md);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-elevated);
+            transition: background 0.15s ease;
+        }
+
+        .conversation-header:hover {
+            background: var(--surface-hover);
+        }
+
+        .message-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-subject {
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .message-date {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .conversation-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-left: var(--space-sm);
+        }
+
+        .unread-indicator {
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .conversation-content {
+            border-top: 1px solid var(--border-primary);
+            background: var(--bg-primary);
+            display: none;
+        }
+
+        .conversation-content.expanded {
+            display: block;
+        }
+
+        .message {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .admin-message {
+            background: rgba(74, 158, 255, 0.03);
+            border-left: 3px solid var(--primary);
+        }
+
+        .user-message {
+            background: rgba(156, 39, 176, 0.03);
+            border-left: 3px solid #9c27b0;
+        }
+
+        .message-content {
+            margin-bottom: var(--space-xs);
+            line-height: 1.4;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .reply-section {
+            padding: var(--space-md);
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .reply-textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: var(--space-sm);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 12px;
+            resize: vertical;
+            margin-bottom: var(--space-sm);
+        }
+
+        .reply-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .reply-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .mobile-notifications-btn {
+            display: none;
+            position: fixed;
+            bottom: var(--space-lg);
+            right: var(--space-lg);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: var(--space-md) var(--space-lg);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .mobile-notifications-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                padding: var(--space-md);
+            }
+
+            .projects-table {
+                font-size: 12px;
+            }
+
+            .projects-table th,
+            .projects-table td {
+                padding: var(--space-sm);
+            }
+
+            .mobile-notifications-btn {
+                display: flex;
+            }
+
+            .notifications-panel {
+                width: 100vw;
+                right: -100vw;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-md);
+            }
+
+            .projects-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <a href="#" class="logo">Viizor Cloud</a>
+            <div class="breadcrumb">Dashboard / Proyectos</div>
+        </div>
+
+        <div class="user-section">
+            <div class="user-info">
+                <span id="userName">Cargando...</span>
+            </div>
+            <button class="btn" onclick="toggleNotificationsPanel()" style="position: relative;">
+                💬 Mensajes
+                <span id="headerUnreadBadge" class="unread-badge" style="display: none; position: absolute; top: -5px; right: -5px;">0</span>
+            </button>
+            <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Auth Error (hidden by default) -->
+        <div id="authError" class="auth-error" style="display: none;">
+            <h2>Autenticación Requerida</h2>
+            <p>El acceso al dashboard de Viizor Cloud requiere autenticación. Por favor inicia sesión para gestionar tus proyectos de nubes de puntos.</p>
+            <a href="/pro" class="btn btn-primary">Iniciar Sesión</a>
+            <div id="debugInfo" class="debug-info" style="display: none;"></div>
+        </div>
+
+        <!-- Dashboard Content (hidden by default) -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Total de Proyectos</span>
+                    <span class="stat-value" id="totalProjects">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Estado de Almacenamiento</span>
+                    <span class="stat-value" id="storageUsed">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Plan</span>
+                    <span class="stat-value" id="planType">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Días de Prueba</span>
+                    <span class="stat-value" id="daysLeft">-</span>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <section>
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Proyectos de Nubes de Puntos</h1>
+                    </div>
+                    <button class="btn btn-primary" onclick="openUploadModal()">
+                        Subir Nube de Puntos
+                    </button>
+                </div>
+
+                <div class="projects-container">
+                    <div id="projectsContainer">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            Cargando proyectos...
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="notifications-panel">
+        <div class="notifications-header">
+            <h3>
+                💬 Mensajes 
+                <span id="unreadBadge" class="unread-badge" style="display: none;">0</span>
+            </h3>
+            <button id="toggleNotifications" class="notifications-toggle" onclick="toggleNotificationsPanel()">
+                ▶
+            </button>
+        </div>
+        
+        <div id="notificationsContent" class="notifications-content">
+            <div id="loadingMessages" class="loading-state">
+                <div class="spinner"></div>
+                Cargando mensajes...
+            </div>
+            
+            <div id="messagesContainer" style="display: none;">
+                <!-- Mensajes se cargan dinámicamente aquí -->
+            </div>
+            
+            <div id="noMessages" style="display: none; padding: var(--space-xl); text-align: center; color: var(--text-tertiary);">
+                📭 No tienes mensajes
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Notifications Button -->
+    <button id="mobileNotificationsBtn" class="mobile-notifications-btn" onclick="toggleNotificationsPanel()">
+        💬 Mensajes <span id="mobileBadge" class="unread-badge" style="display: none;">0</span>
+    </button>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Subir Nube de Puntos</h2>
+                <button class="modal-close" onclick="closeUploadModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea">
+                    <p class="upload-text">Arrastra tu archivo de nube de puntos aquí</p>
+                    <p class="upload-subtext">Soporta archivos .laz y .las hasta el límite de tu plan</p>
+                    <input type="file" id="fileInput" accept=".laz,.las" style="display: none;">
+                </div>
+
+                <div id="uploadProgress" class="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progressBar" class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text" id="uploadStatus">Preparando subida...</p>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn" onclick="closeUploadModal()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        Seleccionar Archivo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="share-modal">
+        <div class="share-modal-content">
+            <h3>Compartir Proyecto</h3>
+            <p>Comparte este enlace con tus clientes o colaboradores y podrán ver este proyecto en su navegador</p>
+            <div class="share-url-container" id="shareUrl"></div>
+            <div class="share-modal-actions">
+                <button class="btn" onclick="closeShareModal()">Cerrar</button>
+                <button class="btn btn-primary" onclick="copyShareUrl()">Copiar Enlace</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ViizorDashboard {
+            constructor() {
+                this.token = localStorage.getItem('viizor_auth_token');
+                this.user = null;
+                this.debugInfo = [];
+                
+                // Messaging properties
+                this.notificationsPanelOpen = false;
+                this.userMessages = [];
+                this.unreadCount = 0;
+                
+                this.init();
+            }
+
+            log(message) {
+                console.log(`[Dashboard] ${message}`);
+                this.debugInfo.push(`${new Date().toLocaleTimeString()}: ${message}`);
+                this.updateDebugDisplay();
+            }
+
+            updateDebugDisplay() {
+                const debugEl = document.getElementById('debugInfo');
+                if (debugEl) {
+                    debugEl.innerHTML = this.debugInfo.slice(-10).join('\n');
+                }
+            }
+
+            async init() {
+                this.log('Inicializando dashboard...');
+                this.log(`Token presente: ${this.token ? 'SÍ' : 'NO'}`);
+
+                if (!this.token) {
+                    this.log('No hay token en localStorage');
+                    this.showAuthError();
+                    return;
+                }
+
+                const isAuthenticated = await this.verifyAuthentication();
+                if (!isAuthenticated) {
+                    this.log('Token inválido o expirado');
+                    this.showAuthError();
+                    return;
+                }
+
+                this.log('Autenticación exitosa');
+                this.showDashboard();
+                await this.loadUserProfile();
+                await this.loadUserProjects();
+                this.setupUploadHandlers();
+                this.initializeNotifications();
+            }
+
+            async verifyAuthentication() {
+                try {
+                    this.log('Verificando autenticación...');
+                    const response = await fetch('/api/auth/profile', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    this.log(`Respuesta auth: ${response.status}`);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.log(`Datos recibidos: ${JSON.stringify(data)}`);
+
+                        if (data.success && data.user) {
+                            this.user = data.user;
+                        } else if (data.email) {
+                            this.user = data;
+                        } else {
+                            this.log('Estructura de respuesta inesperada');
+                            return false;
+                        }
+
+                        this.log(`Usuario cargado: ${this.user.email}`);
+                        return true;
+                    } else {
+                        this.log(`Error en auth: ${response.status}`);
+                        this.logout();
+                        return false;
+                    }
+                } catch (error) {
+                    this.log(`Error verificando auth: ${error.message}`);
+                    return false;
+                }
+            }
+
+            showAuthError() {
+                document.getElementById('authError').style.display = 'block';
+                document.getElementById('dashboardContent').style.display = 'none';
+                document.getElementById('debugInfo').style.display = 'block';
+            }
+
+            showDashboard() {
+                document.getElementById('authError').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+            }
+
+            async loadUserProfile() {
+                this.log('Cargando perfil de usuario...');
+                if (this.user) {
+                    this.updateProfileUI(this.user);
+                }
+            }
+
+            async loadUserProjects() {
+                try {
+                    this.log('Cargando proyectos del usuario...');
+                    const response = await fetch('/api/clouds', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const projects = await response.json();
+                        this.log(`Proyectos recibidos: ${projects.length}`);
+                        this.renderProjects(projects);
+                    } else {
+                        this.log(`Error cargando proyectos: ${response.status}`);
+                        this.renderProjectsError();
+                    }
+                } catch (error) {
+                    this.log(`Error en fetch proyectos: ${error.message}`);
+                    this.renderProjectsError();
+                }
+            }
+
+            updateProfileUI(user) {
+                this.log('Actualizando UI del perfil...');
+                const userName = user.name || user.email?.split('@')[0] || 'Usuario';
+
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('totalProjects').textContent = user.projects_count || 0;
+
+                // Formato unificado: "usado / límite"
+                const storageUsed = this.formatBytes(user.storage_used || 0);
+                const storageLimit = this.formatBytes(user.storage_limit || 5368709120);
+                document.getElementById('storageUsed').textContent = `${storageUsed} / ${storageLimit}`;
+
+                document.getElementById('planType').textContent = (user.plan || 'trial').toUpperCase();
+
+                if (user.trial_expires_at) {
+                    const expiryDate = new Date(user.trial_expires_at);
+                    const today = new Date();
+                    const daysLeft = Math.max(0, Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24)));
+                    document.getElementById('daysLeft').textContent = daysLeft;
+                } else {
+                    document.getElementById('daysLeft').textContent = '∞';
+                }
+            }
+
+            renderProjects(projects) {
+                this.log(`Renderizando ${projects.length} proyectos`);
+                const container = document.getElementById('projectsContainer');
+
+                if (!projects || projects.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Sin Proyectos</h3>
+                            <p>Sube tu primer archivo de nube de puntos para comenzar la visualización y análisis</p>
+                            <button class="btn btn-primary" onclick="openUploadModal()">
+                                Subir Nube de Puntos
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const tableHTML = `
+                    <table class="projects-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Proyecto</th>
+                                <th>Tamaño de Archivo</th>
+                                <th>Fecha de Subida</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${projects.map(project => {
+                                const projectName = project.originalName || project.title || 'Proyecto Sin Título';
+                                const projectId = project.id || project.uuid;
+                                const uploadDate = project.uploadDate || project.created_at;
+                                const fileSize = project.fileSize || project.file_size;
+                                const status = project.status || 'ready';
+
+                                return `
+                                    <tr>
+                                        <td>
+                                            <div class="project-name" onclick="openProject('${projectId}')">
+                                                ${projectName}
+                                            </div>
+                                            <div class="project-meta">${projectId.substring(0, 8)}...</div>
+                                        </td>
+                                        <td>
+                                            <span class="file-size">${this.formatBytes(fileSize || 0)}</span>
+                                        </td>
+                                        <td>
+                                            <span class="project-date">${uploadDate ? new Date(uploadDate).toLocaleDateString('es-ES') : '-'}</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-${status === 'ready' || status === 'completed' ? 'ready' : status === 'processing' ? 'processing' : 'error'}">
+                                                ${status === 'ready' || status === 'completed' ? 'LISTO' : status === 'processing' ? 'PROCESANDO' : 'ERROR'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="project-actions">
+                                                <button class="btn-action btn-view" onclick="openProject('${projectId}')" title="Ver Proyecto">
+                                                    VER
+                                                </button>
+                                                <button class="btn-action btn-share" onclick="shareProject('${projectId}')" title="Compartir Proyecto">
+                                                    COMPARTIR
+                                                </button>
+                                                <button class="btn-action btn-delete" onclick="deleteProject('${projectId}')" title="Eliminar Proyecto">
+                                                    ELIMINAR
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = tableHTML;
+            }
+
+            renderProjectsError() {
+                document.getElementById('projectsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Cargando Proyectos</h3>
+                        <p>No se pudieron cargar los datos del proyecto. Verifica tu conexión e inténtalo de nuevo.</p>
+                        <button class="btn btn-primary" onclick="dashboard.loadUserProjects()">
+                            Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+
+            // === MESSAGING FUNCTIONS ===
+            async initializeNotifications() {
+                this.log('Inicializando sistema de mensajería...');
+                await this.loadUserMessages();
+                // Verificar mensajes cada 30 segundos
+                setInterval(() => this.loadUserMessages(), 30000);
+            }
+
+            async loadUserMessages() {
+                if (!this.token) return;
+                
+                try {
+                    const response = await fetch('/api/user/messages', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    
+                    if (!response.ok) return;
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.userMessages = result.conversations || [];
+                        this.unreadCount = result.unread_count || 0;
+                        
+                        this.updateUnreadBadge();
+                        this.displayUserMessages();
+                        this.log(`Mensajes cargados: ${this.userMessages.length}, no leídos: ${this.unreadCount}`);
+                    }
+                } catch (error) {
+                    this.log(`Error cargando mensajes: ${error.message}`);
+                    this.showNoMessagesState();
+                }
+            }
+
+            updateUnreadBadge() {
+                const badge = document.getElementById('unreadBadge');
+                const mobileBadge = document.getElementById('mobileBadge');
+                const headerBadge = document.getElementById('headerUnreadBadge');
+                
+                if (this.unreadCount > 0) {
+                    badge.textContent = this.unreadCount;
+                    badge.style.display = 'inline';
+                    mobileBadge.textContent = this.unreadCount;
+                    mobileBadge.style.display = 'inline';
+                    headerBadge.textContent = this.unreadCount;
+                    headerBadge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                    mobileBadge.style.display = 'none';
+                    headerBadge.style.display = 'none';
+                }
+            }
+
+            displayUserMessages() {
+                const container = document.getElementById('messagesContainer');
+                const loading = document.getElementById('loadingMessages');
+                const noMessages = document.getElementById('noMessages');
+                
+                loading.style.display = 'none';
+                
+                if (this.userMessages.length === 0) {
+                    container.style.display = 'none';
+                    noMessages.style.display = 'block';
+                    return;
+                }
+                
+                noMessages.style.display = 'none';
+                container.style.display = 'block';
+                
+                let html = '';
+                
+                this.userMessages.forEach(conversation => {
+                    const isUnread = !conversation.read_at;
+                    const hasReplies = conversation.replies && conversation.replies.length > 0;
+                    
+                    html += `
+                        <div class="message-conversation ${isUnread ? 'unread' : ''}" data-message-id="${conversation.id}">
+                            <div class="conversation-header" onclick="toggleConversation(${conversation.id})">
+                                <div class="message-info">
+                                    <div class="message-subject">${conversation.subject}</div>
+                                    <div class="message-date">${this.formatDate(conversation.created_at)}</div>
+                                </div>
+                                <div class="conversation-controls">
+                                    ${isUnread ? '<span class="unread-indicator">●</span>' : ''}
+                                    <span class="expand-icon" id="icon-${conversation.id}">▼</span>
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-content" id="conversation-${conversation.id}">
+                                <div class="message admin-message">
+                                    <div class="message-content">${conversation.message}</div>
+                                    <div class="message-time">Admin - ${this.formatDateTime(conversation.created_at)}</div>
+                                </div>
+                                
+                                ${hasReplies ? this.renderReplies(conversation.replies) : ''}
+                                
+                                <div class="reply-section">
+                                    <textarea 
+                                        id="reply-${conversation.id}" 
+                                        placeholder="Escribir respuesta..." 
+                                        class="reply-textarea"
+                                    ></textarea>
+                                    <div class="reply-actions">
+                                        <button onclick="sendUserReply(${conversation.id})" class="btn btn-primary btn-sm">
+                                            Enviar Respuesta
+                                        </button>
+                                        ${isUnread ? `<button onclick="markAsRead(${conversation.id})" class="btn btn-sm">Marcar como Leído</button>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            renderReplies(replies) {
+                return replies.map(reply => `
+                    <div class="message ${reply.is_from_admin ? 'admin-message' : 'user-message'}">
+                        <div class="message-content">${reply.message}</div>
+                        <div class="message-time">
+                            ${reply.is_from_admin ? 'Admin' : 'Tú'} - ${this.formatDateTime(reply.created_at)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            showNoMessagesState() {
+                document.getElementById('loadingMessages').style.display = 'none';
+                document.getElementById('messagesContainer').style.display = 'none';
+                document.getElementById('noMessages').style.display = 'block';
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) return 'Hoy';
+                if (diffDays === 2) return 'Ayer';
+                if (diffDays <= 7) return `Hace ${diffDays} días`;
+                
+                return date.toLocaleDateString();
+            }
+
+            formatDateTime(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    border-radius: 6px;
+                    color: white;
+                    z-index: 1001;
+                    font-size: 13px;
+                    ${type === 'success' ? 'background: var(--success);' : ''}
+                    ${type === 'error' ? 'background: var(--danger);' : ''}
+                    ${type === 'info' ? 'background: var(--primary);' : ''}
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            setupUploadHandlers() {
+                const uploadArea = document.getElementById('uploadArea');
+                const fileInput = document.getElementById('fileInput');
+
+                uploadArea.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        this.uploadFile(e.target.files[0]);
+                    }
+                });
+
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    if (e.dataTransfer.files.length > 0) {
+                        this.uploadFile(e.dataTransfer.files[0]);
+                    }
+                });
+            }
+
+            async uploadFile(file) {
+                this.log(`Iniciando subida: ${file.name}`);
+
+                if (!file.name.toLowerCase().endsWith('.laz') && !file.name.toLowerCase().endsWith('.las')) {
+                    alert('Por favor selecciona un archivo .laz o .las');
+                    return;
+                }
+
+                const progressContainer = document.getElementById('uploadProgress');
+                const progressBar = document.getElementById('progressBar');
+                const statusText = document.getElementById('uploadStatus');
+
+                progressContainer.style.display = 'block';
+                statusText.textContent = 'Preparando subida...';
+
+                const formData = new FormData();
+                formData.append('pointcloud', file);
+
+                try {
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percentComplete = (e.loaded / e.total) * 100;
+                            progressBar.style.width = percentComplete + '%';
+                            statusText.textContent = `Subiendo... ${Math.round(percentComplete)}%`;
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        this.log(`Respuesta de subida: ${xhr.status}`);
+
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                statusText.textContent = 'Subida completa';
+                                this.log('Subida exitosa');
+                                setTimeout(() => {
+                                    closeUploadModal();
+                                    this.loadUserProjects();
+                                    this.loadUserProfile();
+                                }, 1500);
+                            } else {
+                                statusText.textContent = 'Error: ' + response.error;
+                                this.log(`Error en subida: ${response.error}`);
+                            }
+                        } else if (xhr.status === 401) {
+                            statusText.textContent = 'Sesión expirada';
+                            setTimeout(() => this.logout(), 2000);
+                        } else if (xhr.status === 402) {
+                            statusText.textContent = 'Límite de plan alcanzado';
+                        } else {
+                            statusText.textContent = 'Error del servidor';
+                            this.log(`Error servidor subida: ${xhr.status}`);
+                        }
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        statusText.textContent = 'Error de conexión';
+                        this.log('Error de conexión durante subida');
+                    });
+
+                    xhr.open('POST', '/api/upload');
+                    xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
+                    xhr.send(formData);
+
+                } catch (error) {
+                    statusText.textContent = 'Error: ' + error.message;
+                    this.log(`Error subida: ${error.message}`);
+                }
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+
+            logout() {
+                this.log('Cerrando sesión...');
+                localStorage.removeItem('viizor_auth_token');
+                window.location.href = '/pro';
+            }
+        }
+
+        // === MESSAGING GLOBAL FUNCTIONS ===
+        function toggleNotificationsPanel() {
+            const panel = document.getElementById('notificationsPanel');
+            const toggle = document.getElementById('toggleNotifications');
+            dashboard.notificationsPanelOpen = !dashboard.notificationsPanelOpen;
+            
+            if (dashboard.notificationsPanelOpen) {
+                panel.classList.add('open');
+                toggle.textContent = '◀';
+            } else {
+                panel.classList.remove('open');
+                toggle.textContent = '▶';
+            }
+        }
+
+        function toggleConversation(messageId) {
+            const content = document.getElementById(`conversation-${messageId}`);
+            const icon = document.getElementById(`icon-${messageId}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+                
+                // Marcar como leído automáticamente al expandir
+                const messageDiv = content.parentElement;
+                if (messageDiv.classList.contains('unread')) {
+                    markAsRead(messageId);
+                }
+            }
+        }
+
+        async function sendUserReply(messageId) {
+            const textarea = document.getElementById(`reply-${messageId}`);
+            const message = textarea.value.trim();
+            
+            if (!message) {
+                alert('Por favor escribe una respuesta');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/user/reply/${messageId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${dashboard.token}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    textarea.value = '';
+                    await dashboard.loadUserMessages();
+                    dashboard.showNotification('Respuesta enviada correctamente', 'success');
+                } else {
+                    alert('Error enviando respuesta: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error enviando respuesta: ' + error.message);
+            }
+        }
+
+        async function markAsRead(messageId) {
+            try {
+const response = await fetch(`/api/user/messages/${messageId}/read`, {
+                    method: 'PUT',
+                    headers: {
+'Authorization': `Bearer ${localStorage.getItem('viizor_auth_token')}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+                    messageDiv.classList.remove('unread');
+                    
+// Actualizar badge manualmente
+const badge = document.getElementById('unreadBadge');
+const mobileBadge = document.getElementById('mobileBadge');
+const headerBadge = document.getElementById('headerUnreadBadge');
+let currentCount = parseInt(badge.textContent || '0');
+let newCount = Math.max(0, currentCount - 1);
+if (newCount > 0) {
+    badge.textContent = newCount;
+    mobileBadge.textContent = newCount;
+    headerBadge.textContent = newCount;
+} else {
+    badge.style.display = 'none';
+    mobileBadge.style.display = 'none';
+    headerBadge.style.display = 'none';
+}                    
+                    const markReadBtn = messageDiv.querySelector('.btn-sm:not(.btn-primary)');
+                    if (markReadBtn) {
+                        markReadBtn.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+            }
+        }
+
+        // === DASHBOARD GLOBAL FUNCTIONS ===
+        function openProject(projectId) {
+            dashboard.log(`Abriendo proyecto: ${projectId}`);
+            window.open(`/pro?uuid=${projectId}`, '_blank');
+        }
+
+        function shareProject(projectId) {
+            dashboard.log(`Compartiendo proyecto: ${projectId}`);
+
+            // Generar URL de compartir con /pro?uuid=
+            const shareUrl = `${window.location.origin}/pro?uuid=${projectId}`;
+
+            // Mostrar modal de compartir
+            document.getElementById('shareUrl').textContent = shareUrl;
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        async function copyShareUrl() {
+            const shareUrl = document.getElementById('shareUrl').textContent;
+
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                alert('¡Enlace copiado al portapapeles!');
+                closeShareModal();
+            } catch (error) {
+                // Fallback para navegadores antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('¡Enlace copiado al portapapeles!');
+                closeShareModal();
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                dashboard.log(`Eliminando proyecto: ${projectId}`);
+                const response = await fetch(`/api/clouds/${projectId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${dashboard.token}` }
+                });
+
+                if (response.ok) {
+                    dashboard.log('Proyecto eliminado exitosamente');
+                    dashboard.loadUserProjects();
+                    dashboard.loadUserProfile();
+                } else {
+                    dashboard.log(`Error eliminando proyecto: ${response.status}`);
+                    alert('Error eliminando proyecto');
+                }
+            } catch (error) {
+                dashboard.log(`Error eliminación: ${error.message}`);
+                alert('Error eliminando proyecto');
+            }
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function logout() {
+            dashboard.logout();
+        }
+
+        // Initialize
+        const dashboard = new ViizorDashboard();
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeUploadModal();
+                closeShareModal();
+                if (dashboard.notificationsPanelOpen) {
+                    toggleNotificationsPanel();
+                }
+            }
+        });
+
+        document.getElementById('uploadModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeUploadModal();
+            }
+        });
+
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeShareModal();
+            }
+        });
+    </script>
+</body>
+</html>

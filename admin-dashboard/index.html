@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viizor Cloud - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark theme consistent with /pro viewer */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #363636;
+            --bg-elevated: #2f2f2f;
+            /* Blue accents from /pro */
+            --primary: #4a9eff;
+            --primary-hover: #5ba7ff;
+            --primary-dark: #3a8eef;
+            /* Text hierarchy */
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #888888;
+            --text-disabled: #666666;
+            /* Semantic colors */
+            --success: #00d084;
+            --warning: #ffa726;
+            --danger: #f44336;
+            /* Borders */
+            --border-primary: #404040;
+            --border-hover: #555555;
+            /* Surface colors */
+            --surface-hover: rgba(255, 255, 255, 0.05);
+            --surface-active: rgba(255, 255, 255, 0.1);
+            /* Spacing system */
+            --space-xs: 8px;
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            /* Border radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .header-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        /* Messaging Controls */
+        .messaging-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-left: var(--space-lg);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-md);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+        }
+
+        .btn.btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .btn.btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn.btn-primary:disabled {
+            background: var(--text-disabled);
+            border-color: var(--text-disabled);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .btn.btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .btn.btn-danger:hover {
+            background: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .btn.btn-secondary {
+            background: var(--bg-elevated);
+            border-color: var(--border-primary);
+        }
+
+        .btn.btn-sm {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .btn.btn-info {
+            background: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+
+        .btn.btn-info:hover {
+            background: #138496;
+            border-color: #138496;
+        }
+
+        /* Main content */
+        .main {
+            padding: var(--space-xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Stats Grid */
+        .global-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.users { background: rgba(74, 158, 255, 0.1); color: var(--primary); }
+        .stat-icon.projects { background: rgba(255, 167, 38, 0.1); color: var(--warning); }
+        .stat-icon.storage { background: rgba(0, 208, 132, 0.1); color: var(--success); }
+        .stat-icon.pro { background: rgba(255, 193, 7, 0.1); color: #ffd54f; }
+        .stat-icon.active { background: rgba(76, 175, 80, 0.1); color: #81c784; }
+        .stat-icon.new { background: rgba(63, 81, 181, 0.1); color: #7986cb; }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .stat-change {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+            margin-bottom: var(--space-xl);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th {
+            background: var(--bg-tertiary);
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .users-table td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+            vertical-align: middle;
+        }
+
+        .users-table tr:hover {
+            background: var(--surface-hover);
+        }
+
+        .user-email {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .user-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-badge.trial {
+            background: rgba(255, 167, 38, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 167, 38, 0.2);
+        }
+
+        .plan-badge.pro {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffd54f;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .plan-badge.admin {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(244, 67, 54, 0.2);
+        }
+
+        .storage-bar {
+            width: 60px;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .storage-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: var(--space-xs);
+            align-items: center;
+        }
+
+        /* Checkbox styling */
+        .user-checkbox, .select-all-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            position: relative;
+            appearance: none;
+        }
+
+        .user-checkbox:checked, .select-all-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .user-checkbox:checked::after, .select-all-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: -1px;
+            left: 2px;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Message Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: var(--space-lg);
+            background-color: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+        }
+
+        .modal-footer {
+            padding: var(--space-lg);
+            background-color: var(--bg-tertiary);
+            border-top: 1px solid var(--border-primary);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+        }
+
+        .close {
+            color: var(--text-secondary);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-xs);
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--space-sm);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.1);
+        }
+
+        .selected-users-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: var(--space-xs);
+        }
+
+        .user-tag {
+            background-color: rgba(74, 158, 255, 0.1);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            border: 1px solid rgba(74, 158, 255, 0.2);
+        }
+
+        /* User Messages Row */
+        .user-messages-row {
+            background-color: var(--bg-primary);
+        }
+
+        .messages-container {
+            padding: var(--space-lg);
+            max-width: 900px;
+        }
+
+        .messages-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .messages-header h5 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .messages-content {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: var(--space-lg);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+        }
+
+        .message-thread {
+            margin-bottom: var(--space-lg);
+        }
+
+        .message {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .message:last-child {
+            border-bottom: none;
+        }
+
+        .admin-message {
+            background-color: rgba(74, 158, 255, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .user-message {
+            background-color: rgba(156, 39, 176, 0.05);
+            border-left: 4px solid #9c27b0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-xs);
+            font-size: 12px;
+        }
+
+        .message-header strong {
+            color: var(--text-primary);
+        }
+
+        .message-subject {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .message-content {
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+        }
+
+        .message-time {
+            color: var(--text-tertiary);
+            font-size: 11px;
+        }
+
+        .reply-form {
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            background: var(--bg-elevated);
+        }
+
+        .reply-form textarea {
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: var(--space-sm);
+        }
+
+        .no-messages {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-style: italic;
+            padding: var(--space-2xl);
+        }
+
+        /* Loading & Empty States */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+            gap: var(--space-md);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-primary);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+
+        /* Projects table styles */
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .projects-table th {
+            background: var(--bg-tertiary);
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .projects-table td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border-primary);
+            vertical-align: middle;
+        }
+
+        .projects-table tr:hover {
+            background: var(--surface-hover);
+        }
+
+        .project-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .project-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.ready {
+            background: rgba(0, 208, 132, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(0, 208, 132, 0.2);
+        }
+
+        .status-badge.processing {
+            background: rgba(255, 167, 38, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 167, 38, 0.2);
+        }
+
+        .status-badge.error {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(244, 67, 54, 0.2);
+        }
+
+        /* Debug Console */
+        .debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-primary);
+            padding: var(--space-md);
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+
+        .debug-console.show {
+            display: block;
+        }
+
+        .debug-line {
+            margin-bottom: 2px;
+        }
+
+        .debug-time {
+            color: var(--text-disabled);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main {
+                padding: var(--space-lg);
+            }
+
+            .global-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .users-table,
+            .projects-table {
+                font-size: 11px;
+            }
+
+            .users-table th,
+            .users-table td,
+            .projects-table th,
+            .projects-table td {
+                padding: var(--space-xs) var(--space-sm);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .actions-cell {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-md);
+            }
+
+            .users-table,
+            .projects-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .messaging-controls {
+                flex-direction: column;
+                align-items: stretch;
+                margin-left: 0;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="#" class="logo">Viizor Cloud</a>
+            <div class="header-title">Admin / Dashboard</div>
+            <span class="header-title" style="background: var(--danger); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">ADMIN</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn" onclick="toggleDebug()">Debug Console</button>
+            <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar</button>
+            
+            <!-- Messaging Controls -->
+            <div class="messaging-controls">
+                <button id="selectAllBtn" class="btn btn-secondary" onclick="toggleSelectAll()">
+                    Seleccionar Todos
+                </button>
+                <button id="sendMessageBtn" class="btn btn-primary" onclick="openMessageModal()" disabled>
+                    💬 Enviar Mensaje (<span id="selectedCount">0</span>)
+                </button>
+            </div>
+            
+            <a href="/dashboard" class="btn">Dashboard Usuario</a>
+            <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Global Statistics -->
+        <section class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Estadísticas Globales</h1>
+                    <p class="section-subtitle">Resumen general del sistema</p>
+                </div>
+            </div>
+
+            <div class="global-stats">
+                <div class="stat-card">
+                    <div class="stat-icon users">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalUsers">-</div>
+                        <div class="stat-label">Total Usuarios</div>
+                        <div class="stat-change" id="totalUsersChange">Total registrados</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon projects">📊</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalProjects">-</div>
+                        <div class="stat-label">Proyectos Totales</div>
+                        <div class="stat-change" id="totalProjectsChange">Archivos subidos</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon storage">💾</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalStorage">-</div>
+                        <div class="stat-label">Almacenamiento Total</div>
+                        <div class="stat-change" id="totalStorageChange">Espacio utilizado</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon pro">⭐</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalPro">-</div>
+                        <div class="stat-label">Usuarios Pro</div>
+                        <div class="stat-change" id="totalProChange">Con plan pago</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon active">⚡</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="activeUsers">-</div>
+                        <div class="stat-label">Usuarios Activos (7D)</div>
+                        <div class="stat-change" id="activeUsersChange">Última semana</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon new">🆕</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="newUsers">-</div>
+                        <div class="stat-label">Nuevos Usuarios (30D)</div>
+                        <div class="stat-change" id="newUsersChange">Último mes</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Management Section -->
+        <section class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Gestión de Usuarios</h1>
+                    <p class="section-subtitle">Administrar cuentas y permisos</p>
+                </div>
+            </div>
+
+            <div class="users-container">
+                <div class="table-container">
+                    <div id="usersContainer">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            Cargando usuarios...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Projects Section -->
+        <section class="projects-section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Proyectos Recientes</h1>
+                    <p class="section-subtitle">Archivos subidos recientemente</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div id="projectsContainer">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        Cargando proyectos...
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para enviar mensaje -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enviar Mensaje</h3>
+                <span class="close" onclick="closeMessageModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Para:</label>
+                    <div id="selectedUsers" class="selected-users-list">
+                        <!-- Lista de usuarios seleccionados -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="messageSubject">Asunto:</label>
+                    <input type="text" id="messageSubject" class="form-control" placeholder="Asunto del mensaje">
+                </div>
+                <div class="form-group">
+                    <label for="messageContent">Mensaje:</label>
+                    <textarea id="messageContent" class="form-control" rows="6" placeholder="Escribir mensaje..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMessageModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="sendMessage()">Enviar Mensaje</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Console -->
+    <div id="debugConsole" class="debug-console">
+        <div id="debugContent"></div>
+    </div>
+
+    <script>
+        // Admin Dashboard Manager Class
+        class AdminDashboard {
+            constructor() {
+                this.token = localStorage.getItem('viizor_auth_token');
+                this.isDebugMode = false;
+                this.selectedUsers = new Set();
+                
+                if (!this.token) {
+                    alert('Token de autenticación no encontrado. Redirigiendo a login...');
+                    window.location.href = '/admin';
+                    return;
+                }
+
+                this.init();
+            }
+
+            async init() {
+                this.log('🚀 Inicializando Admin Dashboard...');
+                await this.loadGlobalStats();
+                await this.loadUsers();
+                await this.loadRecentProjects();
+                this.log('✅ Dashboard cargado completamente');
+            }
+
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const debugContent = document.getElementById('debugContent');
+                
+                if (debugContent) {
+                    debugContent.innerHTML += `
+                        <div class="debug-line">
+                            <span class="debug-time">[${timestamp}]</span> ${message}
+                        </div>
+                    `;
+                    debugContent.scrollTop = debugContent.scrollHeight;
+                }
+
+                console.log(`[${timestamp}] ${message}`);
+            }
+
+            async loadGlobalStats() {
+                try {
+                    this.log('📊 Cargando estadísticas globales...');
+                    const response = await fetch('/api/admin/stats', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.log(`Estadísticas recibidas: ${JSON.stringify(data.stats)}`);
+                        this.renderGlobalStats(data.stats);
+                    } else {
+                        this.log(`Error cargando estadísticas: ${response.status}`);
+                        this.renderStatsError();
+                    }
+                } catch (error) {
+                    this.log(`Error en fetch estadísticas: ${error.message}`);
+                    this.renderStatsError();
+                }
+            }
+
+            renderGlobalStats(stats) {
+                // Users stats
+                document.getElementById('totalUsers').textContent = stats.users?.total || 0;
+                document.getElementById('totalUsersChange').textContent = 'Total registrados';
+                
+                // Projects stats
+                document.getElementById('totalProjects').textContent = stats.projects?.total || 0;
+                document.getElementById('totalProjectsChange').textContent = 'Archivos subidos';
+                
+                // Storage (placeholder - calculated in users)
+                document.getElementById('totalStorage').textContent = '0 B';
+                document.getElementById('totalStorageChange').textContent = 'Espacio utilizado';
+                
+                // Pro users
+                document.getElementById('totalPro').textContent = stats.users?.pro || 0;
+                document.getElementById('totalProChange').textContent = 'Con plan pago';
+                
+                // Active users (placeholder - needs implementation)
+                document.getElementById('activeUsers').textContent = '0';
+                document.getElementById('activeUsersChange').textContent = 'Última semana';
+                
+                // New users (placeholder - needs implementation)
+                document.getElementById('newUsers').textContent = '0';
+                document.getElementById('newUsersChange').textContent = 'Último mes';
+            }
+
+            renderStatsError() {
+                const elements = ['totalUsers', 'totalProjects', 'totalStorage', 'totalPro', 'activeUsers', 'newUsers'];
+                elements.forEach(id => {
+                    document.getElementById(id).textContent = 'Error';
+                });
+                
+                document.getElementById('totalUsersChange').textContent = 'Error cargando datos';
+                document.getElementById('totalProjectsChange').textContent = 'Error cargando datos';
+                document.getElementById('totalStorageChange').textContent = 'Error cargando datos';
+                document.getElementById('totalProChange').textContent = 'Error cargando datos';
+                document.getElementById('activeUsersChange').textContent = 'Error cargando datos';
+                document.getElementById('newUsersChange').textContent = 'Error cargando datos';
+            }
+
+            async loadUsers() {
+                try {
+                    this.log('Cargando lista de usuarios...');
+                    const response = await fetch('/api/admin/users', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json(); 
+                        const users = data.users;
+                        this.log(`Usuarios recibidos: ${users.length}`);
+                        this.renderUsers(users);
+                    } else {
+                        this.log(`Error cargando usuarios: ${response.status}`);
+                        this.renderUsersError();
+                    }
+                } catch (error) {
+                    this.log(`Error en fetch usuarios: ${error.message}`);
+                    this.renderUsersError();
+                }
+            }
+
+            renderUsers(users) {
+                const container = document.getElementById('usersContainer');
+
+                if (!users || users.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Sin Usuarios</h3>
+                            <p>No hay usuarios registrados en el sistema</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const tableHTML = `
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox" onchange="toggleSelectAll()">
+                                </th>
+                                <th>Usuario</th>
+                                <th>Plan</th>
+                                <th>Proyectos</th>
+                                <th>Almacenamiento</th>
+                                <th>Registro</th>
+                                <th>Último Acceso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => {
+                                const plan = user.plan || 'trial';
+                                const projectsCount = user.projects_count || 0;
+                                const storageUsed = this.formatBytes(user.storage_used || 0);
+                                const storageLimit = this.formatBytes(user.storage_limit || 5368709120);
+                                const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : '-';
+                                const lastLogin = user.last_seen_at ? new Date(user.last_seen_at).toLocaleDateString('es-ES') : 'Nunca';
+                                const daysLeft = user.trial_expires_at ? Math.max(0, Math.ceil((new Date(user.trial_expires_at) - new Date()) / (1000 * 60 * 60 * 24))) : 0;
+                                
+                                return `
+                                    <tr data-user-id="${user.id}">
+                                        <td>
+                                            <input type="checkbox" class="user-checkbox" value="${user.id}" data-email="${user.email}" onchange="updateSelectedCount()">
+                                        </td>
+                                        <td>
+                                            <div class="user-email">${user.email}</div>
+                                            <small class="user-meta">ID: ${user.id.slice(0, 8)}...</small>
+                                        </td>
+                                        <td>
+                                            <span class="plan-badge ${plan}">${plan}</span>
+                                            ${plan === 'trial' && daysLeft >= 0 ? `<small class="user-meta">${daysLeft} días trial</small>` : ''}
+                                        </td>
+                                        <td>
+                                            <strong>${projectsCount}</strong>
+                                            <small class="user-meta">proyectos</small>
+                                        </td>
+                                        <td>
+                                            <div>${storageUsed} / ${storageLimit}</div>
+                                            <div class="storage-bar">
+                                                <div class="storage-fill" style="width: ${Math.min(100, (user.storage_used || 0) / (user.storage_limit || 5368709120) * 100)}%"></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>${createdAt}</div>
+                                            <small class="user-meta">${this.getRelativeTime(user.created_at)}</small>
+                                        </td>
+                                        <td>
+                                            <div>${lastLogin}</div>
+                                            <small class="user-meta">${user.last_seen_at ? this.getRelativeTime(user.last_seen_at) : 'nunca'}</small>
+                                        </td>
+                                        <td>
+                                            <div class="actions-cell">
+                                                <button class="btn btn-sm btn-info" onclick="toggleUserMessages('${user.id}')">
+                                                    💬 Mensajes
+                                                </button>
+                                                <button class="btn btn-sm btn-primary" onclick="upgradeUser('${user.id}')">UPGRADE</button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">DELETE</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="messages-${user.id}" class="user-messages-row" style="display: none;">
+                                        <td colspan="8">
+                                            <div class="messages-container">
+                                                <div class="messages-header">
+                                                    <h5>Conversación con ${user.email}</h5>
+                                                    <button onclick="toggleUserMessages('${user.id}')" class="btn btn-sm btn-secondary">Cerrar</button>
+                                                </div>
+                                                <div id="messages-content-${user.id}" class="messages-content">
+                                                    <!-- Contenido de mensajes se carga dinámicamente -->
+                                                </div>
+                                                <div class="reply-form">
+                                                    <textarea id="reply-${user.id}" placeholder="Escribir respuesta..." class="form-control"></textarea>
+                                                    <button onclick="sendReply('${user.id}')" class="btn btn-primary btn-sm" style="margin-top: 8px;">Enviar Respuesta</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = tableHTML;
+            }
+
+            renderUsersError() {
+                document.getElementById('usersContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Cargando Usuarios</h3>
+                        <p>No se pudieron cargar los datos de usuarios. Verifica tu conexión e inténtalo de nuevo.</p>
+                        <button class="btn btn-primary" onclick="admin.loadUsers()">
+                            Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+
+            async loadRecentProjects() {
+                try {
+                    this.log('Cargando proyectos recientes...');
+                    const response = await fetch('/api/admin/projects', {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const projects = data.projects;
+                        this.log(`Proyectos recibidos: ${projects.length}`);
+                        this.renderProjects(projects);
+                    } else {
+                        this.log(`Error cargando proyectos: ${response.status}`);
+                        this.renderProjectsError();
+                    }
+                } catch (error) {
+                    this.log(`Error en fetch proyectos: ${error.message}`);
+                    this.renderProjectsError();
+                }
+            }
+
+            renderProjects(projects) {
+                const container = document.getElementById('projectsContainer');
+
+                if (!projects || projects.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Sin Proyectos</h3>
+                            <p>No hay proyectos subidos en el sistema</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const tableHTML = `
+                    <table class="projects-table">
+                        <thead>
+                            <tr>
+                                <th>Proyecto</th>
+                                <th>Propietario</th>
+                                <th>Tamaño</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${projects.slice(0, 20).map(project => {
+                                const projectName = project.originalName || project.title || 'Sin Título';
+                                const ownerEmail = project.user_email || 'Desconocido';
+                                const fileSize = this.formatBytes(project.fileSize || project.file_size || 0);
+                                const uploadDate = project.uploadDate || project.created_at;
+                                const status = project.status || 'ready';
+
+                                return `
+                                    <tr>
+                                        <td>
+                                            <div class="project-name">${projectName}</div>
+                                            <small class="project-meta">ID: ${(project.id || project.uuid || '').slice(0, 8)}...</small>
+                                        </td>
+                                        <td>
+                                            <div>${ownerEmail}</div>
+                                        </td>
+                                        <td>
+                                            <div>${fileSize}</div>
+                                        </td>
+                                        <td>
+                                            <div>${uploadDate ? new Date(uploadDate).toLocaleDateString('es-ES') : '-'}</div>
+                                            <small class="project-meta">${uploadDate ? this.getRelativeTime(uploadDate) : ''}</small>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge ${status}">${status}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = tableHTML;
+            }
+
+            renderProjectsError() {
+                document.getElementById('projectsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Cargando Proyectos</h3>
+                        <p>No se pudieron cargar los datos de proyectos.</p>
+                        <button class="btn btn-primary" onclick="admin.loadRecentProjects()">
+                            Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+
+            formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+
+            getRelativeTime(timestamp) {
+                const now = new Date();
+                const date = new Date(timestamp);
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) return 'hoy';
+                if (diffDays === 1) return 'ayer';
+                if (diffDays < 7) return `hace ${diffDays} días`;
+                if (diffDays < 30) return `hace ${Math.floor(diffDays / 7)} semanas`;
+                if (diffDays < 365) return `hace ${Math.floor(diffDays / 30)} meses`;
+                return `hace ${Math.floor(diffDays / 365)} años`;
+            }
+        }
+
+        // Messaging functions
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+            admin.selectedUsers.clear();
+            
+            checkboxes.forEach(cb => {
+                admin.selectedUsers.add({
+                    id: cb.value,
+                    email: cb.dataset.email
+                });
+            });
+            
+            document.getElementById('selectedCount').textContent = admin.selectedUsers.size;
+            document.getElementById('sendMessageBtn').disabled = admin.selectedUsers.size === 0;
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            
+            userCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function openMessageModal() {
+            if (admin.selectedUsers.size === 0) return;
+            
+            const selectedUsersDiv = document.getElementById('selectedUsers');
+            selectedUsersDiv.innerHTML = '';
+            
+            admin.selectedUsers.forEach(user => {
+                const userTag = document.createElement('span');
+                userTag.className = 'user-tag';
+                userTag.textContent = user.email;
+                selectedUsersDiv.appendChild(userTag);
+            });
+            
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+            document.getElementById('messageSubject').value = '';
+            document.getElementById('messageContent').value = '';
+        }
+
+        async function sendMessage() {
+            const subject = document.getElementById('messageSubject').value.trim();
+            const message = document.getElementById('messageContent').value.trim();
+            
+            if (!message) {
+                alert('Por favor escriba un mensaje');
+                return;
+            }
+            
+            try {
+                const userIds = Array.from(admin.selectedUsers).map(user => user.id);
+                
+                const response = await fetch('/api/admin/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${admin.token}`
+                    },
+                    body: JSON.stringify({
+                        user_ids: userIds,
+                        subject: subject || 'Mensaje del administrador',
+                        message: message
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Mensaje enviado a ${result.sent_to} usuario(s)`);
+                    closeMessageModal();
+                    clearSelections();
+                    admin.log(`Mensaje enviado a ${result.sent_to} usuarios`);
+                } else {
+                    alert('Error enviando mensaje: ' + result.error);
+                    admin.log('Error enviando mensaje: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error enviando mensaje: ' + error.message);
+                admin.log('Error enviando mensaje: ' + error.message);
+            }
+        }
+
+        function clearSelections() {
+            admin.selectedUsers.clear();
+            document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateSelectedCount();
+        }
+
+        async function toggleUserMessages(userId) {
+            const messagesRow = document.getElementById(`messages-${userId}`);
+            
+            if (messagesRow.style.display === 'none') {
+                messagesRow.style.display = 'table-row';
+                await loadUserMessages(userId);
+            } else {
+                messagesRow.style.display = 'none';
+            }
+        }
+
+        async function loadUserMessages(userId) {
+            try {
+                const response = await fetch(`/api/admin/messages/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${admin.token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayMessages(userId, result.conversations);
+                } else {
+                    admin.log('Error cargando mensajes: ' + result.error);
+                }
+            } catch (error) {
+                admin.log('Error cargando mensajes: ' + error.message);
+            }
+        }
+
+        function displayMessages(userId, conversations) {
+            const container = document.getElementById(`messages-content-${userId}`);
+            
+            if (conversations.length === 0) {
+                container.innerHTML = '<p class="no-messages">No hay mensajes con este usuario</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            conversations.forEach(conv => {
+                html += `
+                    <div class="message-thread">
+                        <div class="message admin-message">
+                            <div class="message-header">
+                                <strong>Administrador</strong>
+                                <span class="message-time">${new Date(conv.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div class="message-subject">${conv.subject}</div>
+                            <div class="message-content">${conv.message}</div>
+                        </div>
+                `;
+                
+                if (conv.replies && conv.replies.length > 0) {
+                    conv.replies.forEach(reply => {
+                        const isAdmin = reply.is_from_admin;
+                        html += `
+                            <div class="message ${isAdmin ? 'admin-message' : 'user-message'}">
+                                <div class="message-header">
+                                    <strong>${isAdmin ? 'Administrador' : 'Usuario'}</strong>
+                                    <span class="message-time">${new Date(reply.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="message-content">${reply.message}</div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+
+        async function sendReply(userId) {
+            const textarea = document.getElementById(`reply-${userId}`);
+            const message = textarea.value.trim();
+            
+            if (!message) {
+                alert('Por favor escriba una respuesta');
+                return;
+            }
+            
+            // Para simplificar, responderemos al último mensaje principal
+            try {
+                const response = await fetch(`/api/admin/messages/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${admin.token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.conversations.length > 0) {
+                    const lastMainMessage = result.conversations[0];
+                    
+                    const replyResponse = await fetch(`/api/admin/reply/${lastMainMessage.id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${admin.token}`
+                        },
+                        body: JSON.stringify({ message })
+                    });
+                    
+                    const replyResult = await replyResponse.json();
+                    
+                    if (replyResult.success) {
+                        textarea.value = '';
+                        await loadUserMessages(userId);
+                        admin.log('Respuesta enviada correctamente');
+                    } else {
+                        alert('Error enviando respuesta: ' + replyResult.error);
+                    }
+                } else {
+                    alert('No se puede responder sin una conversación activa');
+                }
+            } catch (error) {
+                alert('Error enviando respuesta: ' + error.message);
+                admin.log('Error enviando respuesta: ' + error.message);
+            }
+        }
+
+        // Global functions
+        async function upgradeUser(userId) {
+            if (!confirm('¿Estás seguro de que quieres hacer upgrade de este usuario a Pro?')) {
+                return;
+            }
+
+            try {
+                admin.log(`Haciendo upgrade de usuario: ${userId}`);
+                const response = await fetch(`/api/admin/users/${userId}/upgrade`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${admin.token}` }
+                });
+
+                if (response.ok) {
+                    admin.log('Usuario actualizado exitosamente');
+                    await admin.loadUsers();
+                    await admin.loadGlobalStats();
+                } else {
+                    admin.log(`Error actualizando usuario: ${response.status}`);
+                    alert('Error actualizando usuario');
+                }
+            } catch (error) {
+                admin.log(`Error upgrade: ${error.message}`);
+                alert('Error actualizando usuario');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer y eliminará todos sus proyectos.')) {
+                return;
+            }
+
+            try {
+                admin.log(`Eliminando usuario: ${userId}`);
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${admin.token}` }
+                });
+
+                if (response.ok) {
+                    admin.log('Usuario eliminado exitosamente');
+                    await admin.loadUsers();
+                    await admin.loadGlobalStats();
+                } else {
+                    admin.log(`Error eliminando usuario: ${response.status}`);
+                    alert('Error eliminando usuario');
+                }
+            } catch (error) {
+                admin.log(`Error eliminación: ${error.message}`);
+                alert('Error eliminando usuario');
+            }
+        }
+
+        function refreshData() {
+            admin.log('Actualizando todos los datos...');
+            admin.loadGlobalStats();
+            admin.loadUsers();
+            admin.loadRecentProjects();
+        }
+
+        function toggleDebug() {
+            const debugConsole = document.getElementById('debugConsole');
+            admin.isDebugMode = !admin.isDebugMode;
+            
+            if (admin.isDebugMode) {
+                debugConsole.classList.add('show');
+            } else {
+                debugConsole.classList.remove('show');
+            }
+        }
+
+        function logout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                localStorage.removeItem('viizor_auth_token');
+                window.location.href = '/admin';
+            }
+        }
+
+        // Initialize admin dashboard
+        let admin;
+        document.addEventListener('DOMContentLoaded', function() {
+            admin = new AdminDashboard();
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('messageModal');
+            if (event.target === modal) {
+                closeMessageModal();
+            }
+        }
+    </script>
+</body>
+</html>
